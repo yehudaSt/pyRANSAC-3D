@@ -42,16 +42,16 @@ class Cuboid(BaseParallelRansac):
         vecC = vecC / np.linalg.norm(vecC)  # Normal
 
         k = -np.sum(np.multiply(vecC, pt_samples[1, :]))
-        plane_eq = np.hstack(vecC, k)
-
+        plane_eq = np.hstack((vecC, k))
+        plane_eq.resize((1, 4))
         # Now we use another point to find a orthogonal plane 2
         # Calculate distance from the point to the first plane
         dist_p4_plane = (
-                                plane_eq[0][0] * pt_samples[3, 0]
-                                + plane_eq[0][1] * pt_samples[3, 1]
-                                + plane_eq[0][2] * pt_samples[3, 2]
-                                + plane_eq[0][3]
-                        ) / np.sqrt(plane_eq[0][0] ** 2 + plane_eq[0][1] ** 2 + plane_eq[0][2] ** 2)
+                                plane_eq[0, 0] * pt_samples[3, 0]
+                                + plane_eq[0, 1] * pt_samples[3, 1]
+                                + plane_eq[0, 2] * pt_samples[3, 2]
+                                + plane_eq[0, 3]
+                        ) / np.sqrt(plane_eq[0, 0] ** 2 + plane_eq[0, 1] ** 2 + plane_eq[0, 2] ** 2)
 
         # vecC is already normal (module 1) so we only have to discount from the point, the distance*unity = distance*normal
         # A simple way of understanding this is we move our point along the normal until it reaches the plane
@@ -63,15 +63,17 @@ class Cuboid(BaseParallelRansac):
         vecF = np.cross(vecD, vecE)
         vecF = vecF / np.linalg.norm(vecF)  # Normal
         k = -np.sum(np.multiply(vecF, pt_samples[4, :]))
-        plane_eq_2 = np.hstack(vecF, k)
-        plane_eq = np.vstack(plane_eq, plane_eq_2)
+        plane_eq_2 = np.hstack((vecF, k))
+        plane_eq_2.resize((1, 4))
+        plane_eq = np.vstack((plane_eq, plane_eq_2))
 
         # The last plane will be orthogonal to the first and sacond plane (and its normals will be orthogonal to first and second planes' normal)
         vecG = np.cross(vecC, vecF)
 
         k = -np.sum(np.multiply(vecG, pt_samples[5, :]))
-        plane_eq_2 = np.hstack(vecG, k)
-        plane_eq = np.vstack(plane_eq, plane_eq_2)
+        plane_eq_3 = np.hstack((vecG, k))
+        plane_eq_3.resize((1, 4))
+        plane_eq = np.vstack((plane_eq, plane_eq_3))
         # We have to find the value D for the last plane.
 
         # Distance from a point to a plane
